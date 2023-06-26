@@ -1,2 +1,2 @@
 # signalit
-Manage state locally and globally in React with signals
+React application state management with signals

@@ -1,0 +1,16 @@
+{
+  "name": "signalit",
+  "version": "0.1.0",
+  "description": "React application state management with signals",
+  "main": "dist/esm/index.js",
+  "repository": "https://github.com/christianalfoni/signalit.git",
+  "author": "Christian Alfoni <christianalfoni@gmail.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.14",
+    "react": "^18.2.0"
+  }
+}
