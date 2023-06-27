@@ -1,24 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ObserverContext } from "./ObserverContext";
+import { useRef, useSyncExternalStore } from "react";
 import { Signal } from "./Signal";
+import { ObserverContext } from "./ObserverContext";
 
 let observerContext: ObserverContext | undefined;
-
-export function useSignals<T extends () => any>(fn: T, deps?: any[]) {
-  const [version, setState] = useState(0);
-
-  const context = (observerContext = new ObserverContext(() =>
-    setState((current) => current + 1)
-  ));
-
-  const result = deps ? useMemo(() => fn(), [version, ...deps]) : fn();
-
-  useEffect(() => context.subscribe(), [context]);
-
-  observerContext = undefined;
-
-  return result;
-}
 
 export function signal<T>(value: T) {
   const signal = new Signal();
@@ -48,13 +32,13 @@ export function compute<T>(cb: () => T) {
   const recompute = () => {
     disposer?.();
 
-    observerContext = new ObserverContext(() => {
+    observerContext = new ObserverContext();
+
+    const result = cb();
+    disposer = observerContext.subscribe(() => {
       isDirty = true;
       signal.notify();
     });
-
-    const result = cb();
-    disposer = observerContext.subscribe();
 
     observerContext = undefined;
 
@@ -75,4 +59,28 @@ export function compute<T>(cb: () => T) {
       return value;
     },
   };
+}
+
+export function useSignals<T>() {
+  const context = (observerContext = new ObserverContext());
+
+  useSyncExternalStore(
+    (update) => context.subscribe(update),
+    () => ObserverContext.notifyCount
+  );
+
+  return (value: T): T => {
+    observerContext = undefined;
+    return value;
+  };
+}
+
+export function useSignal<T>(initialValue: T) {
+  const signalRef = useRef<{ value: T }>();
+
+  if (!signalRef.current) {
+    signalRef.current = signal(initialValue);
+  }
+
+  return signalRef.current;
 }
