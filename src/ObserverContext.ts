@@ -3,7 +3,7 @@ import type { Signal } from "./Signal";
 export class ObserverContext {
   static notifyCount = 0;
   private _signals = new Set<Signal>();
-  onUpdate?: () => void;
+  private onUpdate?: () => void;
   registerSignal(signal: Signal) {
     this._signals.add(signal);
   }

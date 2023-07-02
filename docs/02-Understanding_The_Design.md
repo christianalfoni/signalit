@@ -71,9 +71,9 @@ export default {
 
 ## Consuming signals
 
-There are also alternatives in expressing how a component would consume signals.
+There are also alternatives in expressing how a component would consume signals. What we need to achieve is to create an active `ObserverContext` and let React subscribe to any signals accessed durig the execution of the component function body.
 
-For example we could wrap components in an observer:
+The most straight forward way to keep this `ObserverContext` bound to the execution of the component function body is to create an `observer` higher order component:
 
 ```tsx
 import { signal, observer } from 'signalit'
@@ -89,7 +89,20 @@ const SomeComponent = observer(() => {
 })
 ```
 
-We could use an `Observer` component:
+This would work, but you will be accessing signals in many components and having these higher order components spread through your component tree is not ideal. Many developers prefer defining their component as a normal function, but here we are pushed towards using an anonymous arrow function as the the following example shows how unnatural the usage of it would be:
+
+```tsx
+export const SomeExportedComponent = observer(function SomeExportedComponent() {})
+
+function SomeComponent {}
+
+export default observer(SomeComponent)
+```
+
+In addition you will need to use `forwardRef`.
+
+
+We could use an `Observer` component instead:
 
 ```tsx
 import { signal, Observer } from 'signalit'
@@ -109,7 +122,9 @@ const SomeComponent = () => {
 }
 ```
 
-And we can use a hook:
+As we want to avoid having multiple ways to observe signals this approach is really out of the question, cause it only works for signals expressed in JSX.
+
+To avoid the issues stated we have to look closer at how we can use a hook:
 
 ```tsx
 import { signal, useSignals } from 'signalit'
@@ -125,9 +140,7 @@ const SomeComponent = () => {
 }
 ```
 
-A design decision was to choose a single way to express observing signals in components, as multiple approaches can easily cause confusion. The only two real alternatives is `observer` and `useSignals`, as `Observer` would only track signals related to JSX.
-
-The `useSignals` hook is appealing as hooks are very common, while Higher Order Components like `observer` is not. The problem using a hook though is that you normally do not put JSX into hooks and it is likely to break linting rules. For example:
+With a `useSignals` hook we avoid creating a higher order component, but we still have some issues. Returning JSX from a hook like this creates conceptual confusion. You do not normally relate hooks to creating JSX. But more importantly it
 
 ```tsx
 
@@ -150,13 +163,6 @@ Even though technically `signalit` can guarantee that the callback of `useSignal
 
 If we go down the path of using `observer` we require you to pass all React references as `forwardRef`, due to the `observer` being a higher order component. Also we create friction exporting named components:
 
-```tsx
-export const SomeExportedComponent = observer(function SomeExportedComponent() {})
-
-function SomeComponent {}
-
-export default observer(SomeComponent)
-```
 
 But there is one more way to express this observing of signals:
 
