@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
 
+Symbol.dispose ??= Symbol("Symbol.dispose");
+
 const AppWrapper = () => {
   const [show, setShow] = useState(true);
 

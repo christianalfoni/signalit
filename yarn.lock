@@ -169,6 +169,21 @@
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.22.5.tgz#721fd042f3ce1896238cf1b341c77eb7dee7dbea"
   integrity sha512-DFZMC9LJUG9PLOclRC32G63UXwzqS2koQC8dkx+PLdmt1xSePYpbT/NbsrJy8Q/muXz7o/h/d4A7Fuyixm559Q==
 
+"@babel/plugin-proposal-explicit-resource-management@^7.22.5":
+  version "7.22.5"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-explicit-resource-management/-/plugin-proposal-explicit-resource-management-7.22.5.tgz#28f873905378f9472b86bae89ba902a8130182d0"
+  integrity sha512-PuY3G+eyI+Sqmn+AQZP2A1FZhui9oEXeOVPOzq+cCZWbIcK4NBZS3ibo/n+1lTh/BGhXM38OZZQfH1SxUJWhyw==
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.22.5"
+    "@babel/plugin-syntax-explicit-resource-management" "^7.22.5"
+
+"@babel/plugin-syntax-explicit-resource-management@^7.22.5":
+  version "7.22.5"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-explicit-resource-management/-/plugin-syntax-explicit-resource-management-7.22.5.tgz#42964a4e754363c07529bb721616b43b4ead57e6"
+  integrity sha512-vokH/rTR4m9hlcxXXL0CPnpoGHUbZ6gfI3kq/UZSwrF9qGo/LxWqEP0qWYqkt5kc6/jrCOTaBeYw+lYleEFtLA==
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.22.5"
+
 "@babel/plugin-syntax-jsx@^7.22.5":
   version "7.22.5"
   resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-jsx/-/plugin-syntax-jsx-7.22.5.tgz#a6b68e84fb76e759fc3b93e901876ffabbe1d918"
@@ -388,6 +403,11 @@
   dependencies:
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
+
+"@types/node@^20.3.3":
+  version "20.3.3"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.3.3.tgz#329842940042d2b280897150e023e604d11657d6"
+  integrity sha512-wheIYdr4NYML61AjC8MKj/2jrR/kDQri/CIpVoZwldwhnIrD/j9jIU5bJ8yBKuB2VhpFV7Ab6G2XkBjv9r9Zzw==
 
 "@types/prop-types@*":
   version "15.7.5"
@@ -695,10 +715,10 @@ to-fast-properties@^2.0.0:
   resolved "https://registry.yarnpkg.com/to-fast-properties/-/to-fast-properties-2.0.0.tgz#dc5e698cbd079265bc73e0377681a4e4e83f616e"
   integrity sha512-/OaKK0xYrs3DmxRYqL/yDc+FxFUVYhDlXMhRmv3z915w2HF1tnN1omB354j8VUGO/hbRzyD6Y3sA7v7GS/ceog==
 
-typescript@^4.6.4:
-  version "4.9.5"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.5.tgz#095979f9bcc0d09da324d58d03ce8f8374cbe65a"
-  integrity sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==
+typescript@^5.2.0-beta:
+  version "5.2.0-beta"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.2.0-beta.tgz#a5cef616353be2f896da1d83a779d1d76a270129"
+  integrity sha512-z5cq8BXVwaY8cwltw0BiyHRCVXen3QNgIzIcJV4NiLzaWvavxltzFSXd2csO4HoBjlGnuG+/LLbUZ8is3fD6iA==
 
 update-browserslist-db@^1.0.11:
   version "1.0.11"

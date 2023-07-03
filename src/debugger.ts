@@ -72,44 +72,6 @@ function createStackFrameData(stack: string) {
     return stackFrameData;
   }
 
-  // Safari does not seem to support console logging after styling and links are shown as strings
-  if (window.navigator.userAgent.includes("Safari")) {
-    const callSites = stack
-      .split("\n")
-      .filter(
-        (line) =>
-          !line.includes("node_modules") &&
-          !line.includes("src/lib") &&
-          line.includes(window.location.origin)
-      );
-    const stackFrameData: Array<{
-      file: string;
-      line: number;
-      column: number;
-      functionName: string;
-    }> = [];
-
-    for (const callSite of callSites) {
-      try {
-        const [functionName, file] = callSite.split("@");
-
-        const parts = file.split(":");
-
-        const column = Number(parts.pop());
-        const line = Number(parts.pop());
-
-        stackFrameData.push({
-          file: file.replace(`:${line}:${column}`, ""),
-          line,
-          column,
-          functionName,
-        });
-      } catch {}
-    }
-
-    return stackFrameData;
-  }
-
   return [];
 }
 

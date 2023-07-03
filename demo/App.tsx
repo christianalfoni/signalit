@@ -1,12 +1,22 @@
 import todos from "./todos";
-import { useSignal, useObserver } from "../src";
+import { useSignal, observer, useSignalPromise } from "../src";
+import { Suspense } from "react";
 
 const JustATest = () => {
-  return <div>{todos.todos.length}</div>;
-};
+  using _ = observer()
+  
+  const foo = useSignalPromise(todos.promise);
+  return (
+    <div>
+      <div onClick={() => todos.changePromise()}>{foo}</div>
+      <div>{todos.todos.length}</div>
+    </div>
+  );
+}
 
 export const App = () => {
-  useObserver();
+  using _ = observer()
+  
   const newTodoTitle = useSignal("");
 
   const onTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,6 +43,7 @@ export const App = () => {
           onKeyDown={onTitleKeyDown}
         />
       </div>
+      
       <button
         onClick={() => {
           todos.changeFilter("all");
@@ -68,7 +79,10 @@ export const App = () => {
           ))}
         </ul>
       </div>
-      <JustATest />
+      <Suspense fallback={<h4>Loading...</h4>}>
+        <JustATest />
+      </Suspense>
+      
     </div>
   );
-};
+}

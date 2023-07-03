@@ -32,9 +32,176 @@ signal()
 signal(1)
 ```
 
-The reason `signal.value` was chosen is that it does not hint to any specific programming paradigm, like object oriented programming. It also reflects how values are normally accessed in JavaScript, meaning it is natural to use in any programming paradigm and context. From a stylistic perspective it also avoids expressing that there is something "special" or "heavy" about accessing these signals. They are plain values, using getters/setters.
+The reason `signal.value` was chosen is that it does not hint to any specific programming paradigm, like object oriented programming. It also reflects how values are accessed in JavaScript at a low level, meaning it is natural to use in any programming paradigm and context. From a stylistic perspective it also avoids expressing that there is something "special" or "heavy" about accessing these signals. They are plain values, using getters/setters under the hood.
 
-## Prevent state access
+## Consuming signals
+
+There are also alternatives in expressing how a component would consume signals. What we need to achieve is to create an active `ObserverContext` and let React subscribe to any signals accessed during the execution of the component function body.
+
+For `signalit` it is valued to have one way to approach observation of signals, which means it needs to decide which one of them is most flexible with as little drawbacks as possible.
+
+### Higher Order Component
+
+The most straight forward way to do this is:
+
+```tsx
+import { signal, observer } from 'signalit'
+
+const count = signal(0)
+
+const SomeComponent = observer(() => {
+    return (
+        <div>
+            {count.value}
+        </div>
+    )
+})
+```
+
+Here we create a higher order component which encapsulates the observing in the component function body. From a syntax and mental model perspective this makes a lot of sense, but it has several drawbacks.
+
+**It fills up your component tree** with wrapper components named `Observer` where your previously named components becomes an `Anonymous` child in the React Developer tools. Having these wrapper components and lack of named components it not ideal for debugging purposes.
+
+**Passing refs** will now require you to do a `forwardRef` as we are passing the ref through a parent component. It is not often you do this, but it is not ideal.
+
+**Render callbacks** can not use the **observer** higher order component directly:
+
+```tsx
+import { signal, observer } from 'signalit'
+
+const count = signal(0)
+
+const SomeComponent = observer(() => {
+    return (
+        <div>
+            <SomeOtherComponent item={() => <div>{count.value}</div>} />
+        </div>
+    )
+})
+```
+
+You are forced to lift the contents of the callback into its own observed component.
+
+## Observer component
+
+We could use an `Observer` component which creates its own isolated scope for tracking signals as well:
+
+```tsx
+import { signal, Observer } from 'signalit'
+
+const count = signal(0)
+
+const SomeComponent = () => {
+    return (
+        <Observer>
+            {() => (
+                <div>
+                    {count.value}
+                </div>
+            )}
+        </Observer>
+    )
+}
+```
+
+
+The drawback of the `Observer` component is that it only works in JSX, meaning any tracking of signals used related to hooks will not be tracked.
+
+## Observer hook
+
+A hook would prevent the drawbacks of both previous approach:
+
+```tsx
+import { signal, useSignals } from 'signalit'
+
+const count = signal(0)
+
+const SomeComponent = () => {
+    return useSignals(() => (
+        <div>
+            {count.value}
+        </div>
+    ))
+}
+```
+
+But the `useSignals` hook has subtle, but important drawbacks to highlight. For example when you want to track signals related to an other hook:
+
+```tsx
+import { signal, observer } from 'signalit'
+
+const count = signal(0)
+
+const SomeComponent = () => {
+    return useSignals(() => {
+        useEffect(() => {
+          console.log("Count has changed", count.value)    
+        }, [count.value])
+        
+        return (
+            <div>
+                {count.value}
+            </div>
+        )
+    })
+}
+```
+
+Even though technically `signalit` can guarantee that the callback of `useSignals` always runs, also ensuring that all hooks expressed inside runs, any static code analysis can not. Just like how `new Promise(() => {})` runs synchonously, but TypeScript will yell if you try to access an optional property already verified in the outer scope. This can cause issues with linting and also typescript evaluating values in the outside component scope.
+
+Additionally it creates quite of an exotic API that could be misused. For example users might start doing:
+
+```tsx
+import { signal, observer } from 'signalit'
+
+const count = signal(0)
+
+const SomeComponent = () => {
+    const signals = useSignals(() => ({ count: count.value }))
+}
+```
+
+Which really goes against the concept of signals as you are now explicitly subscribing to signals as opposed to let the nature of just accessing a signal in a component creating the subscription.
+
+## Explicit resource management
+
+A new feature to JavaScript and TypeScript is **explicit resource management**. In practice you are able to use an object during the lifetime of a scope and it will automatically dispose of itself when the scope is dropped. This is a perfect solution for the problem we are trying to solve. Now we get rid of all the previous mentioned drawbacks:
+
+```tsx
+import { signal, observer } from 'signalit'
+
+const count = signal(0)
+
+const SomeComponent = () => {
+    using _ = observer()
+    
+    useEffect(() => {
+        console.log("Count has changed", count.value)    
+    }, [count.value])
+    
+    return (
+        <div>
+            {count.value}
+        </div>
+    )
+}
+```
+
+Now we avoid the following:
+
+- Flooding our component tree with wrapper components
+- Components without a name
+- Forward refs
+- Having multiple ways to express observation
+- Risking wrong usage of API
+
+You can certainly argue that using a new API of the language is not ideal, especially when it means using a new keyword like `using`. I would expect a similar pushback like `async/await`, but this is the right tool for the job.
+
+## Async signals
+
+With a new hook called `use` React will get first class support for promises. A part of this specification is that the hook expects to be able to read resolved promises synchonously. This is not possible with native promises, but can be extended to do so. This hook is currently not available, but `signalit` takes inspiration from the current suggestion to create first class promise support in signals. This means whenever you give a signal a promise it will optimally notify React when it is ready for consumption and you can use the accompanying `useSignalPromise` hook to get suspense behaviour with synchronous reads from resolved promises. When `use` is released, it should be a simple swap.
+
+## Control state access
 
 The API needs to fit with common principles like controlling access to state. As an example you want to control how a signal is changed from within the class:
 
@@ -69,123 +236,8 @@ export default {
 }
 ```
 
-## Consuming signals
-
-There are also alternatives in expressing how a component would consume signals. What we need to achieve is to create an active `ObserverContext` and let React subscribe to any signals accessed durig the execution of the component function body.
-
-The most straight forward way to keep this `ObserverContext` bound to the execution of the component function body is to create an `observer` higher order component:
-
-```tsx
-import { signal, observer } from 'signalit'
-
-const count = signal(0)
-
-const SomeComponent = observer(() => {
-    return (
-        <div>
-            {count.value}
-        </div>
-    )
-})
-```
-
-This would work, but you will be accessing signals in many components and having these higher order components spread through your component tree is not ideal. Many developers prefer defining their component as a normal function, but here we are pushed towards using an anonymous arrow function as the the following example shows how unnatural the usage of it would be:
-
-```tsx
-export const SomeExportedComponent = observer(function SomeExportedComponent() {})
-
-function SomeComponent {}
-
-export default observer(SomeComponent)
-```
-
-In addition you will need to use `forwardRef`.
 
 
-We could use an `Observer` component instead:
 
-```tsx
-import { signal, Observer } from 'signalit'
-
-const count = signal(0)
-
-const SomeComponent = () => {
-    return (
-        <Observer>
-            {() => (
-                <div>
-                    {count.value}
-                </div>
-            )}
-        </Observer>
-    )
-}
-```
-
-As we want to avoid having multiple ways to observe signals this approach is really out of the question, cause it only works for signals expressed in JSX.
-
-To avoid the issues stated we have to look closer at how we can use a hook:
-
-```tsx
-import { signal, useSignals } from 'signalit'
-
-const count = signal(0)
-
-const SomeComponent = () => {
-    return useSignals(() => (
-        <div>
-            {count.value}
-        </div>
-    ))
-}
-```
-
-With a `useSignals` hook we avoid creating a higher order component, but we still have some issues. Returning JSX from a hook like this creates conceptual confusion. You do not normally relate hooks to creating JSX. But more importantly it
-
-```tsx
-
-const SomeComponent = () => {
-    return useSignals(() => {
-        useEffect(() => {
-          console.log("Count has changed", count.value)    
-        }, [count.value])
-        
-        return (
-            <div>
-                {count.value}
-            </div>
-        )
-    })
-}
-```
-
-Even though technically `signalit` can guarantee that the callback of `useSignals` always runs, also ensuring that all hooks expressed inside runs, any outside code analysis can not. Just like how `new Promise(() => {})` runs synchonously, but TypeScript will yell if you try to access an optional property already verified in the outer scope.
-
-If we go down the path of using `observer` we require you to pass all React references as `forwardRef`, due to the `observer` being a higher order component. Also we create friction exporting named components:
-
-
-But there is one more way to express this observing of signals:
-
-```tsx
-const SomeComponent = () => {
-    const render = useSignals()
-    
-    return render(
-        <div>
-            {count.value}
-        </div>
-    )
-}
-```
-
-Now we create an `ObserverContext` first which tracks signal access until its returned `render` function is called. This is exactly what the previous `useSignals` hook does, but we are not using a callback anymore.
-
-One can easily argue that this API is not intuitive at first glance, but it does solve all the issues:
-
-- No HOC forcing usage of `forwardRef` and breaking common export patterns
-- No risk of code analysis tools creating errors when using hooks inside a callback
-- You typically already return JSX using parenthesis, we just make it a function call
-
-What about **suspense** though? Between `useSignals` and `render` the component could throw. This is actually not a problem and the reason is that every call to the component body creates a new `ObserverContext` and even though we track signals accessed until something throws, we do not subscribe to them until the component body is executed. That means the garbage collector will just throw away this "partial" `ObserverContext`.
 
 

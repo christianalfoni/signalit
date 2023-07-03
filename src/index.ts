@@ -1,18 +1,21 @@
 import { useRef, useSyncExternalStore } from "react";
 import { createObserveDebugEntry, createSetterDebugEntry } from "./debugger";
+import * as CachedPromise from "./CachedPromise";
 
 import { ObserverContext } from "./ObserverContext";
 import { Signal } from "./Signal";
 
-let observerContext: ObserverContext | undefined;
+
+
+export const useSignalPromise = CachedPromise.usePromise;
 
 export function signal<T>(value: T) {
-  const signal = new Signal();
+  const signal = new Signal(() => value);
 
   return {
     get value() {
-      if (observerContext) {
-        observerContext.registerSignal(signal);
+      if (ObserverContext.current) {
+        ObserverContext.current.registerSignal(signal);
         if (process.env.NODE_ENV === "development") {
           createObserveDebugEntry(signal);
         }
@@ -21,49 +24,68 @@ export function signal<T>(value: T) {
       return value;
     },
     set value(newValue) {
+      const isUpdatingFulfilledPromise =
+        newValue instanceof Promise &&
+        CachedPromise.isFulfilledCachedPromise(value);
+
       value = newValue;
 
       if (process.env.NODE_ENV === "development") {
         createSetterDebugEntry(signal, value);
       }
 
-      if (value instanceof Promise) {
-        Object.assign(value, {
-          status: "pending",
-        });
-        value
+      if (isUpdatingFulfilledPromise) {
+        const promise = newValue;
+
+        newValue
           .then((resolvedValue) => {
-            Object.assign(value, {
-              status: "fulfilled",
-              value: resolvedValue,
-            });
+            CachedPromise.makePromiseFulfilledCachedPromise(
+              promise,
+              resolvedValue
+            );
           })
           .catch((error) => {
-            Object.assign(value, {
-              status: "error",
-              error,
-            });
+            CachedPromise.makePromiseRejectedCachedPromise(promise, error);
           })
           .finally(() => {
             signal.notify();
+          });
+      } else if (newValue instanceof Promise) {
+        const promise = newValue;
+        CachedPromise.makePromisePendingCachedPromise(promise);
+        signal.notify();
+        newValue
+          .then((resolvedValue) => {
+            CachedPromise.makePromiseFulfilledCachedPromise(
+              promise,
+              resolvedValue
+            );
+          })
+          .catch((error) => {
+            CachedPromise.makePromiseRejectedCachedPromise(promise, error);
           });
       } else {
         signal.notify();
       }
     },
+  } as {
+    get value(): T extends Promise<infer Value>
+      ? CachedPromise.CachedPromise<Value>
+      : T;
+    set value(value: T);
   };
 }
 
 export function compute<T>(cb: () => T) {
-  const signal = new Signal();
   let value: T;
   let disposer: () => void;
   let isDirty = true;
+  const signal = new Signal(() => value);
 
   return {
     get value() {
-      if (observerContext) {
-        observerContext.registerSignal(signal);
+      if (ObserverContext.current) {
+        ObserverContext.current.registerSignal(signal);
         if (process.env.NODE_ENV === "development") {
           createObserveDebugEntry(signal);
         }
@@ -72,18 +94,14 @@ export function compute<T>(cb: () => T) {
       if (isDirty) {
         disposer?.();
 
-        const prevObserverContext = observerContext;
-
-        observerContext = new ObserverContext();
+        const context = new ObserverContext();
 
         value = cb();
 
-        disposer = observerContext.subscribe(() => {
+        disposer = context.subscribe(() => {
           isDirty = true;
           signal.notify();
         });
-
-        observerContext = prevObserverContext;
 
         isDirty = false;
 
@@ -97,16 +115,15 @@ export function compute<T>(cb: () => T) {
   };
 }
 
-export function useObserver() {
-  const context = (observerContext = new ObserverContext());
+export function observer() {
+  const context = new ObserverContext();
 
   useSyncExternalStore(
-    (update) => {
-      observerContext = undefined;
-      return context.subscribe(update);
-    },
-    () => ObserverContext.notifyCount
+    (update) => context.subscribe(update),
+    () => context.snapshot
   );
+
+  return context;
 }
 
 export function useSignal<T>(initialValue: T) {
@@ -116,5 +133,5 @@ export function useSignal<T>(initialValue: T) {
     signalRef.current = signal(initialValue);
   }
 
-  return signalRef.current;
+  return signalRef.current as { value: T };
 }

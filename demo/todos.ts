@@ -46,14 +46,28 @@ const filteredTodos = compute(() =>
   })
 );
 
+const promise = signal(
+  new Promise<string>((resolve) => {
+    setTimeout(() => resolve("MIIIP"), 5000);
+  })
+);
+
 export default {
   get todos() {
     return filteredTodos.value;
+  },
+  get promise() {
+    return promise.value;
   },
   addTodo(title: string) {
     todos.value = [createTodo(title), ...todos.value];
   },
   changeFilter(newFilter: Filter) {
     filter.value = newFilter;
+  },
+  changePromise() {
+    promise.value = new Promise<string>((resolve) => {
+      setTimeout(() => resolve("HOHO"), 2000);
+    });
   },
 };
