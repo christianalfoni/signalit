@@ -1,5 +1,6 @@
 import type { Signal } from "./Signal";
 
+// @ts-ignore
 Symbol.dispose ??= Symbol("Symbol.dispose");
 
 export class ObserverContext {
@@ -43,7 +44,7 @@ export class ObserverContext {
     };
     this._onUpdate?.();
   }
-
+  // @ts-ignore
   [Symbol.dispose]() {
     ObserverContext.current = ObserverContext.prev;
   }

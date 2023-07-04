@@ -3,12 +3,19 @@ import { createObserveDebugEntry, createSetterDebugEntry } from "./debugger";
 import * as CachedPromise from "./CachedPromise";
 
 import { ObserverContext } from "./ObserverContext";
-import { Signal } from "./Signal";
+import { Signal as SignalClass } from "./Signal";
 
 export const useSignalPromise = CachedPromise.usePromise;
 
+export type Signal<T> = {
+  get value(): T extends Promise<infer Value>
+    ? CachedPromise.CachedPromise<Value>
+    : T;
+  set value(value: T);
+};
+
 export function signal<T>(value: T) {
-  const signal = new Signal(() => value);
+  const signal = new SignalClass(() => value);
 
   return {
     get value() {
@@ -66,19 +73,14 @@ export function signal<T>(value: T) {
         signal.notify();
       }
     },
-  } as {
-    get value(): T extends Promise<infer Value>
-      ? CachedPromise.CachedPromise<Value>
-      : T;
-    set value(value: T);
-  };
+  } as Signal<T>;
 }
 
 export function compute<T>(cb: () => T) {
   let value: T;
   let disposer: () => void;
   let isDirty = true;
-  const signal = new Signal(() => value);
+  const signal = new SignalClass(() => value);
 
   return {
     get value() {
@@ -125,7 +127,7 @@ export function observer() {
 }
 
 export function useSignal<T>(initialValue: T) {
-  const signalRef = useRef<{ value: T }>();
+  const signalRef = useRef<Signal<T>>();
 
   if (!signalRef.current) {
     signalRef.current = signal(initialValue);
