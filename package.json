@@ -2,9 +2,13 @@
   "name": "signalit",
   "version": "0.1.0",
   "description": "React application state management with signals",
-  "main": "dist/esm/index.js",
   "repository": "https://github.com/christianalfoni/signalit.git",
   "author": "Christian Alfoni <christianalfoni@gmail.com>",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
   "license": "MIT",
   "scripts": {
     "dev": "vite",
