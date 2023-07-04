@@ -44,7 +44,6 @@ export class ObserverContext {
     };
     this._onUpdate?.();
   }
-  // @ts-ignore
   [Symbol.dispose]() {
     ObserverContext.current = ObserverContext.prev;
   }
