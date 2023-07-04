@@ -5,8 +5,6 @@ import * as CachedPromise from "./CachedPromise";
 import { ObserverContext } from "./ObserverContext";
 import { Signal } from "./Signal";
 
-
-
 export const useSignalPromise = CachedPromise.usePromise;
 
 export function signal<T>(value: T) {

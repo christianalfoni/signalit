@@ -6,6 +6,7 @@ const JustATest = () => {
   using _ = observer()
   
   const foo = useSignalPromise(todos.promise);
+  
   return (
     <div>
       <div onClick={() => todos.changePromise()}>{foo}</div>

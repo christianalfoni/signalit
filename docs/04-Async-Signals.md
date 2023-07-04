@@ -32,7 +32,7 @@ const SomeComponent = ({ id }) => {
 }
 ```
 
-During a pending promise it throws to the `Suspense` boundary and with an error, to the `ErrorBoundary`. Just like `useState`, when the component renders again, it will not use the new promise created, but keep the initial one.
+During a pending promise it throws to the `Suspense` boundary and with an error, to the `ErrorBoundary`. When the component renders after the promise is resolved, just like `useState`, it keeps the initial promise of the hook.
 
 But there is a limitation here and that limitation is caching. If other components needed the same data, or the data needed to be accessed later, there is no mechanism in React that deals with this.
 

@@ -9,29 +9,36 @@ export interface Todo {
 
 export type Filter = "all" | "completed" | "remaining";
 
-function createTodo(initialTitle: string): Todo {
-  const title = signal(initialTitle);
-  const completed = signal(false);
+function createTodo(title: string): Todo {
+  const state = signal({
+    title,
+    completed: false,
+  });
 
   return {
     get title() {
-      return title.value;
+      return state.value.title;
     },
     get completed() {
-      return completed.value;
+      return state.value.completed;
     },
-    changeTitle(newTitle: string) {
-      title.value = newTitle;
+    changeTitle(title: string) {
+      state.value = {
+        ...state.value,
+        title,
+      };
     },
     toggleCompleted() {
-      completed.value = !completed.value;
+      state.value = {
+        ...state.value,
+        completed: !state.value.completed,
+      };
     },
   };
 }
 
 const todos = signal<Todo[]>([]);
 const filter = signal<Filter>("all");
-
 const filteredTodos = compute(() =>
   todos.value.filter((todo) => {
     if (filter.value === "all") {
