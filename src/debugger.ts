@@ -56,6 +56,7 @@ function createStackFrameData(stack: string) {
         const functionName = callSite.match(/.*at (.*)?\(/)![1].trim();
 
         let file = callSite.substring(callSite.indexOf(location.origin));
+
         file = file.substring(0, file.length - 1);
 
         const parts = file.split(":");
@@ -63,7 +64,9 @@ function createStackFrameData(stack: string) {
         const column = Number(parts.pop());
         const line = Number(parts.pop());
 
-        file = file.substring(0, file.indexOf("?"));
+        file = parts.pop()!;
+
+        file = file.includes("?") ? file.substring(0, file.indexOf("?")) : file;
 
         stackFrameData.push({ file, line, column, functionName });
       } catch {}
@@ -99,13 +102,17 @@ function createSourceMappedStackFrame(
 
 export function createObserveDebugEntry(signal: Signal) {
   const stack = new Error().stack!;
+
   const { file, line, column, functionName } =
     createStackFrameData(stack).pop()!;
   const cacheKey = file + line + column;
 
   cache[cacheKey] =
     cache[cacheKey] ||
-    createSourceMappedStackFrame(file, functionName, line, column);
+    createSourceMappedStackFrame(file, functionName, line, column).catch(() => {
+      delete cache[cacheKey];
+      console.error({ file, stack });
+    });
 
   const observedSignal = observedSignals.get(signal);
 
