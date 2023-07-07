@@ -109,10 +109,13 @@ export function createObserveDebugEntry(signal: Signal) {
 
   cache[cacheKey] =
     cache[cacheKey] ||
-    createSourceMappedStackFrame(file, functionName, line, column).catch(() => {
-      delete cache[cacheKey];
-      console.error({ file, stack });
-    });
+    createSourceMappedStackFrame(file, functionName, line, column).catch(
+      (error) => {
+        delete cache[cacheKey];
+        console.error({ file, stack });
+        throw error;
+      }
+    );
 
   const observedSignal = observedSignals.get(signal);
 
