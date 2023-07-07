@@ -53,8 +53,9 @@ function createStackFrameData(stack: string) {
 
     for (const callSite of callSites) {
       try {
-        const functionName =
+        let functionName =
           callSite.match(/.*at (.*)?\(/)?.[1]?.trim() ?? "ANONYMOUS";
+        functionName = functionName.split(".").pop()!;
 
         let file = callSite.substring(callSite.indexOf(location.origin));
 
@@ -65,7 +66,7 @@ function createStackFrameData(stack: string) {
         const column = Number(parts.pop());
         const line = Number(parts.pop());
 
-        file = parts.pop()!;
+        file = parts.join("");
 
         file = file.includes("?") ? file.substring(0, file.indexOf("?")) : file;
 
