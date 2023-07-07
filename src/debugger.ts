@@ -66,7 +66,7 @@ function createStackFrameData(stack: string) {
         const column = Number(parts.pop());
         const line = Number(parts.pop());
 
-        file = parts.join("");
+        file = parts.join(":");
 
         file = file.includes("?") ? file.substring(0, file.indexOf("?")) : file;
 

@@ -1,6 +1,6 @@
 {
   "name": "signalit",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "React application state management with signals",
   "repository": "https://github.com/christianalfoni/signalit.git",
   "author": "Christian Alfoni <christianalfoni@gmail.com>",
