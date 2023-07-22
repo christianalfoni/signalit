@@ -1,11 +1,11 @@
 import todos from "./todos";
-import { useSignal, observer, useSignalPromise } from "../src";
-import { Suspense } from "react";
+import { useSignal, observe } from "../src";
+import { Suspense, useEffect } from "react";
 
 const JustATest = () => {
-  using _ = observer()
+  using _ = observe()
   
-  const foo = useSignalPromise(todos.promise);
+  const foo = todos.promise.use()
   
   return (
     <div>
@@ -16,7 +16,7 @@ const JustATest = () => {
 }
 
 export const App = () => {
-  using _ = observer()
+  using _ = observe()
   
   const newTodoTitle = useSignal("");
 
@@ -30,6 +30,10 @@ export const App = () => {
       newTodoTitle.value = "";
     }
   };
+
+  useEffect(() => todos.onFilteredTodosChange(console.log), [])
+
+  useEffect(() => todos.onPromiseChanged(console.warn), [])
 
   return (
     <div className="App">
