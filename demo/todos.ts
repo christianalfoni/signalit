@@ -66,6 +66,8 @@ export default {
   get promise() {
     return promise.value;
   },
+  onFilteredTodosChange: filteredTodos.onChange,
+  onPromiseChanged: promise.onChange,
   addTodo(title: string) {
     todos.value = [createTodo(title), ...todos.value];
   },
