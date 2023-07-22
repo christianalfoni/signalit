@@ -1,12 +1,14 @@
-# signalit
+# 📻 SignalIt
 Simple and performant reactive primitive for React
 
-- Allows you to define state locally and externally to components
-- Increases performance as components only reconciles based on what it observes
-- Does not use proxies to achieve reactiveness through mutation. It rather relies on simple getter/setter and treats its value as immutable, just like React expects
-- Uses [explicit resource management](https://github.com/tc39/proposal-explicit-resource-management) to observe signals in components, which eliminates overhead to the component tree and improves the debugging experience
-- Enhances promises with suspense support
-- Allows debugging and exploring signals at runtime with source mapped references to the code observing and changing signals. This allows you and fellow developers understand what CODE drives your state changes, not just abstract action names
+**NOTE!** This tool is not ready for production as Prettier, Linters etc. needs to support the incoming `using` keyword for JavaScript/TypeScript. This should be available by end of August 2023
+
+- 🗄️ Allows you to define state locally and externally to components
+- 🚀 Increases performance as components only reconciles based on what it observes
+- 🔐 Does not use proxies to achieve reactiveness through mutation. It rather relies on simple getter/setter and treats its value as immutable, just like React expects
+- 🐛 Uses [explicit resource management](https://github.com/tc39/proposal-explicit-resource-management) to observe signals in components, which eliminates overhead to the component tree and improves the debugging experience
+- 🕐 Enhances promises with suspense support
+- :accessibility: Allows debugging and exploring signals at runtime with source mapped references to the code observing and changing signals. This allows you and fellow developers understand what CODE drives your state changes, not just abstract action names
 
 **Table Of Contents**
 
@@ -21,9 +23,10 @@ Simple and performant reactive primitive for React
 npm install signalit
 ```
 
-Requires **TypeScript 5.2** (Which is currently in Beta).
 
-When using `babel` you need the `@babel/plugin-proposal-explicit-resource-management` plugin.
+<img align="center" src="https://github.com/christianalfoni/signalit/assets/3956929/5c4a8b43-27a2-4553-a710-146d94fbc612" width="25"/> **TypeScript 5.2** (Currently in Beta)
+
+<img align="center" src="https://github.com/christianalfoni/signalit/assets/3956929/eb74b1ea-0ff1-4d18-9ba5-97150408ae86" width="25"/> **@babel/plugin-proposal-explicit-resource-management**
 
 ## Example
 
@@ -323,7 +326,7 @@ const SomeComponent = () => {
 }
 ```
 
-We specifically avoid:
+**We specifically avoid**:
 
 - Flooding our component tree with wrapper components
 - Components without a name
