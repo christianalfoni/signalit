@@ -7,7 +7,6 @@ Simple and performant reactive primitive for React
 - 🚀 Increases performance as components only reconciles based on what it observes
 - 🔐 Does not use proxies to achieve reactiveness through mutation. It rather relies on simple getter/setter and treats its value as immutable, just like React expects
 - 🐛 Uses [explicit resource management](https://github.com/tc39/proposal-explicit-resource-management) to observe signals in components, which eliminates overhead to the component tree and improves the debugging experience
-- 🕐 Enhances promises with suspense support
 - :accessibility: Allows debugging and exploring signals at runtime with source mapped references to the code observing and changing signals. This allows you and fellow developers understand what CODE drives your state changes, not just abstract action names
 
 **Table Of Contents**
@@ -94,67 +93,6 @@ const count = signal(0)
 const dispose = count.onChange((newCount, prevCount) => {
   
 })
-```
-
-### CachedPromise
-
-A signal instantiated with a Promise creates a `CachedPromise` which extends the Promise with enhanced suspense capabilities.
-
-```ts
-import { signal } from 'signalit'
-
-// fetchSomeData returns a native Promise
-const data = signal(fetchSomeData())
-
-// Signal converts it to a CachedPromise
-data.value
-```
-
-### CachedPromise.value
-
-Access and change the promise, creating a new `CachedPromise`
-
-```ts
-import { signal } from 'signalit'
-
-const data = signal(fetchSomeData())
-
-// Immediately changes the promise, but will only notify observers when promise is resolved/rejected
-// to signal a change
-data.value = fetchSomeOtherData()
-
-// Just updating a signal promise with a new value, maybe coming from a subscription, will again immediately
-// be changed, but only notify any observers when resolved
-data.value = Promise.resolve({})
-```
-
-### CachedPromise.use
-
-A hook which allows synchronous access to resolved values, throw to suspense when pending or throw to error boundary when rejected.
-
-**Note!** This hook is likely to become a native hook in React in the near future.
-
-```tsx
-import { signal, observe } from 'signalit'
-
-const dataPromise = signal(fetchSomeData())
-
-const SomeComponent = () => {
-    using _ = observe()
-
-    // Will throw to suspense/error when pending/rejected, or synchronously access the promise
-    // if it is already resolved
-    const data = dataPromise.value.use()
-
-    // When native hook available
-    const data = use(dataPromise.value)
-    
-    return (
-        <div>
-            <h4>The data is ${data}</h4>
-        </div>
-    )
-}
 ```
 
 ## observe()

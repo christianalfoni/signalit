@@ -1,14 +1,11 @@
 import { useRef, useSyncExternalStore } from "react";
 import { createObserveDebugEntry, createSetterDebugEntry } from "./debugger";
-import * as CachedPromise from "./CachedPromise";
 
 import { ObserverContext } from "./ObserverContext";
 import { Signal as SignalClass } from "./Signal";
 
 export type Signal<T> = {
-  get value(): T extends Promise<infer Value>
-    ? CachedPromise.CachedPromise<Value>
-    : T;
+  get value(): T;
   set value(value: T);
   onChange(listener: (newValue: T, prevValue: T) => void): () => void;
 };
@@ -17,90 +14,16 @@ export function signal<T>(value: T) {
   const signal = new SignalClass(() => value);
   let listeners: Set<(newValue: T, prevValue: T) => void> | undefined;
 
-  const onChange = (listener: (newValue: T, prevValue: T) => void) => {
-    listeners = listeners || new Set();
-
-    listeners.add(listener);
-
-    return () => {
-      listeners?.delete(listener);
-    };
-  };
-
-  if (value instanceof Promise) {
-    let promiseValue = CachedPromise.create<T>(value);
-
-    return {
-      onChange,
-      get value() {
-        if (ObserverContext.current) {
-          ObserverContext.current.registerSignal(signal);
-          if (process.env.NODE_ENV === "development") {
-            createObserveDebugEntry(signal);
-          }
-        }
-
-        return promiseValue;
-      },
-      set value(newValue) {
-        const isUpdatingFulfilledPromise =
-          newValue instanceof Promise &&
-          CachedPromise.isFulfilledCachedPromise(promiseValue);
-
-        const prevPromiseValue = promiseValue;
-        promiseValue = newValue;
-
-        if (process.env.NODE_ENV === "development") {
-          createSetterDebugEntry(signal, promiseValue);
-        }
-
-        if (isUpdatingFulfilledPromise) {
-          const promise = newValue;
-
-          newValue
-            .then((resolvedValue) => {
-              CachedPromise.makePromiseFulfilledCachedPromise(
-                promise,
-                resolvedValue
-              );
-              signal.notify();
-              Promise.all([promiseValue, prevPromiseValue]).then(
-                ([value, prevValue]) => {
-                  listeners?.forEach((listener) => listener(value, prevValue));
-                }
-              );
-            })
-            .catch((error) => {
-              CachedPromise.makePromiseRejectedCachedPromise(promise, error);
-              signal.notify();
-            });
-        } else {
-          const promise = newValue;
-          CachedPromise.makePromisePendingCachedPromise(promise);
-          signal.notify();
-          newValue
-            .then((resolvedValue) => {
-              CachedPromise.makePromiseFulfilledCachedPromise(
-                promise,
-                resolvedValue
-              );
-
-              Promise.all([promiseValue, prevPromiseValue]).then(
-                ([value, prevValue]) => {
-                  listeners?.forEach((listener) => listener(value, prevValue));
-                }
-              );
-            })
-            .catch((error) => {
-              CachedPromise.makePromiseRejectedCachedPromise(promise, error);
-            });
-        }
-      },
-    } as Signal<T>;
-  }
-
   return {
-    onChange,
+    onChange(listener: (newValue: T, prevValue: T) => void) {
+      listeners = listeners || new Set();
+
+      listeners.add(listener);
+
+      return () => {
+        listeners?.delete(listener);
+      };
+    },
     get value() {
       if (ObserverContext.current) {
         ObserverContext.current.registerSignal(signal);
