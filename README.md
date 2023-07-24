@@ -3,11 +3,11 @@ Simple and performant reactive primitive for React
 
 **NOTE!** This tool is not ready for production as Prettier, Linters etc. needs to support the incoming `using` keyword for JavaScript/TypeScript. This should be available by end of August 2023
 
-- 🗄️ Allows you to define state locally and externally to components
+- 🗄️ Allows you to define observable state outside the component tree
 - 🚀 Increases performance as components only reconciles based on what it observes
 - 🔐 Does not use proxies to achieve reactiveness through mutation. It rather relies on simple getter/setter and treats its value as immutable, just like React expects
 - 🐛 Uses [explicit resource management](https://github.com/tc39/proposal-explicit-resource-management) to observe signals in components, which eliminates overhead to the component tree and improves the debugging experience
-- 🕐 Enhances promises with suspense support
+- 🕐 Async signals with suspense
 - :accessibility: Allows debugging and exploring signals at runtime with source mapped references to the code observing and changing signals. This allows you and fellow developers understand what CODE drives your state changes, not just abstract action names
 
 **Table Of Contents**
@@ -96,23 +96,23 @@ const dispose = count.onChange((newCount, prevCount) => {
 })
 ```
 
-### CachedPromise
+### AsyncSignal
 
-A signal instantiated with a Promise creates a `CachedPromise` which extends the Promise with enhanced suspense capabilities.
+An async signal instance which enhances the promise with suspense support.
 
 ```ts
-import { signal } from 'signalit'
+import { asyncSignal } from 'signalit'
 
 // fetchSomeData returns a native Promise
-const data = signal(fetchSomeData())
+const data = asyncSignal(fetchSomeData())
 
-// Signal converts it to a CachedPromise
+// AsyncSignal converts it to a CachedPromise
 data.value
 ```
 
-### CachedPromise.value
+### AsyncSignal.value
 
-Access and change the promise, creating a new `CachedPromise`
+Access and change the value of the promise.
 
 ```ts
 import { signal } from 'signalit'
@@ -120,15 +120,14 @@ import { signal } from 'signalit'
 const data = signal(fetchSomeData())
 
 // Immediately changes the promise, but will only notify observers when promise is resolved/rejected
-// to signal a change
 data.value = fetchSomeOtherData()
 
-// Just updating a signal promise with a new value, maybe coming from a subscription, will again immediately
-// be changed, but only notify any observers when resolved
-data.value = Promise.resolve({})
+// Just updating a signal promise with a new value keeps it as a promise and notifies observers 
+// as the value is being resolved
+data.value = {}
 ```
 
-### CachedPromise.use
+### AsyncSignal.value.use()
 
 A hook which allows synchronous access to resolved values, throw to suspense when pending or throw to error boundary when rejected.
 
@@ -176,26 +175,6 @@ const SomeComponent = () => {
         </div>
     )
     // Stops observing and subscribes to any signals observed
-}
-```
-
-## useSignal
-
-If you want to use signals locally to a component, you can do so with the `useSignal` hook:
-
-```tsx
-import { useSignal, observe } from 'signalit'
-
-const SomeComponent = () => {
-    using _ = observe()
-
-    const count = useSignal(0)
-    
-    return (
-        <div>
-            <h4>The count is ${count.value}</h4>
-        </div>
-    )
 }
 ```
 

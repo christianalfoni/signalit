@@ -2,17 +2,16 @@ import todos from "./todos";
 import { useSignal, observe } from "../src";
 import { Suspense, useEffect } from "react";
 
-const JustATest = () => {
+const PromiseComponent = () => {
   using _ = observe()
-  
-  const foo = todos.promise.use()
+
+  const value = todos.promise.use()
   
   return (
-    <div>
-      <div onClick={() => todos.changePromise()}>{foo}</div>
-      <div>{todos.todos.length}</div>
-    </div>
-  );
+    <h3 onClick={() => todos.changePromise()}>
+      {value}
+    </h3>
+  )
 }
 
 export const App = () => {
@@ -83,11 +82,10 @@ export const App = () => {
             </li>
           ))}
         </ul>
-      </div>
-      <Suspense fallback={<h4>Loading...</h4>}>
-        <JustATest />
+      </div>   
+      <Suspense fallback="Loading...">
+        <PromiseComponent />
       </Suspense>
-      
     </div>
   );
 }
