@@ -1,7 +1,18 @@
 import todos from "./todos";
 import { useSignal, observe } from "../src";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
+const PromiseComponent = () => {
+  using _ = observe()
+
+  const value = todos.promise.use()
+  
+  return (
+    <h3 onClick={() => todos.changePromise()}>
+      {value}
+    </h3>
+  )
+}
 
 export const App = () => {
   using _ = observe()
@@ -72,6 +83,9 @@ export const App = () => {
           ))}
         </ul>
       </div>   
+      <Suspense fallback="Loading...">
+        <PromiseComponent />
+      </Suspense>
     </div>
   );
 }

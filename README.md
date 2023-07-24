@@ -3,10 +3,11 @@ Simple and performant reactive primitive for React
 
 **NOTE!** This tool is not ready for production as Prettier, Linters etc. needs to support the incoming `using` keyword for JavaScript/TypeScript. This should be available by end of August 2023
 
-- 🗄️ Allows you to define state locally and externally to components
+- 🗄️ Allows you to define observable state outside the component tree
 - 🚀 Increases performance as components only reconciles based on what it observes
 - 🔐 Does not use proxies to achieve reactiveness through mutation. It rather relies on simple getter/setter and treats its value as immutable, just like React expects
 - 🐛 Uses [explicit resource management](https://github.com/tc39/proposal-explicit-resource-management) to observe signals in components, which eliminates overhead to the component tree and improves the debugging experience
+- 🕐 Async signals with suspense
 - :accessibility: Allows debugging and exploring signals at runtime with source mapped references to the code observing and changing signals. This allows you and fellow developers understand what CODE drives your state changes, not just abstract action names
 
 **Table Of Contents**
@@ -95,6 +96,66 @@ const dispose = count.onChange((newCount, prevCount) => {
 })
 ```
 
+### AsyncSignal
+
+An async signal instance which enhances the promise with suspense support.
+
+```ts
+import { asyncSignal } from 'signalit'
+
+// fetchSomeData returns a native Promise
+const data = asyncSignal(fetchSomeData())
+
+// AsyncSignal converts it to a CachedPromise
+data.value
+```
+
+### AsyncSignal.value
+
+Access and change the value of the promise.
+
+```ts
+import { signal } from 'signalit'
+
+const data = signal(fetchSomeData())
+
+// Immediately changes the promise, but will only notify observers when promise is resolved/rejected
+data.value = fetchSomeOtherData()
+
+// Just updating a signal promise with a new value keeps it as a promise and notifies observers 
+// as the value is being resolved
+data.value = {}
+```
+
+### AsyncSignal.value.use()
+
+A hook which allows synchronous access to resolved values, throw to suspense when pending or throw to error boundary when rejected.
+
+**Note!** This hook is likely to become a native hook in React in the near future.
+
+```tsx
+import { signal, observe } from 'signalit'
+
+const dataPromise = signal(fetchSomeData())
+
+const SomeComponent = () => {
+    using _ = observe()
+
+    // Will throw to suspense/error when pending/rejected, or synchronously access the promise
+    // if it is already resolved
+    const data = dataPromise.value.use()
+
+    // When native hook available
+    const data = use(dataPromise.value)
+    
+    return (
+        <div>
+            <h4>The data is ${data}</h4>
+        </div>
+    )
+}
+```
+
 ## observe()
 
 Creates an observation context which stops observing when the component scope exits.
@@ -114,26 +175,6 @@ const SomeComponent = () => {
         </div>
     )
     // Stops observing and subscribes to any signals observed
-}
-```
-
-## useSignal
-
-If you want to use signals locally to a component, you can do so with the `useSignal` hook:
-
-```tsx
-import { useSignal, observe } from 'signalit'
-
-const SomeComponent = () => {
-    using _ = observe()
-
-    const count = useSignal(0)
-    
-    return (
-        <div>
-            <h4>The count is ${count.value}</h4>
-        </div>
-    )
 }
 ```
 

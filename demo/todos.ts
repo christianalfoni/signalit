@@ -1,4 +1,4 @@
-import { compute, signal } from "../src";
+import { asyncSignal, compute, signal } from "../src";
 
 export interface Todo {
   title: string;
@@ -53,7 +53,7 @@ const filteredTodos = compute(() =>
   })
 );
 
-const promise = signal(
+const promise = asyncSignal(
   new Promise<string>((resolve) => {
     setTimeout(() => resolve("MIIIP"), 5000);
   })
@@ -75,8 +75,8 @@ export default {
     filter.value = newFilter;
   },
   changePromise() {
-    promise.value = new Promise<string>((resolve) => {
-      setTimeout(() => resolve("HOHO"), 2000);
-    });
+    setTimeout(() => {
+      promise.value = "HOHO";
+    }, 2000);
   },
 };
