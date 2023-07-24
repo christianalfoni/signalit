@@ -6,6 +6,8 @@ import { Signal as SignalClass } from "./Signal";
 
 import * as CachedPromise from "./CachedPromise";
 
+export type { CachedPromise } from "./CachedPromise";
+
 export type Signal<T> = {
   get value(): T;
   set value(value: T);
