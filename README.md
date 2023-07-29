@@ -10,12 +10,25 @@ Simple and performant reactive primitive for React
 - 🕐 Async signals with suspense
 - :accessibility: Allows debugging and exploring signals at runtime with source mapped references to the code observing and changing signals. This allows you and fellow developers understand what CODE drives your state changes, not just abstract action names
 
+<img align="center" src="https://github.com/christianalfoni/signalit/assets/3956929/11ee4851-4ebf-474f-a2d3-3b65ebf856a1" width="25" /> **[Open library on CodeSandbox](https://codesandbox.io/p/github/christianalfoni/signalit/main)**
+
+<img align="center" src="https://github.com/christianalfoni/signalit/assets/3956929/11ee4851-4ebf-474f-a2d3-3b65ebf856a1" width="25" /> **[Open demo on CodeSandbox](https://yyxczv-5173.csb.app/)** (Open Chrome Devtools to see debugging DX)
+
+
 **Table Of Contents**
 
 - [Getting Started](#getting-started)
 - [Example](#example)
 - [API](#api)
-- [Design Decisions](#design-decisions)
+    - [Signal](#signal)
+    - [Signal.value](#signal.value)
+    - [Signal.onChange](#signal.onChange)
+    - [AsyncSignal](#asyncsignal)
+    - [AsyncSignal.value](#asyncsignal.value)
+    - [AsyncSignal.value.use](#asyncsignal.value.use)
+    - [observe](#observe)
+    - [useSignal](#usesignal)
+- [Design Decisions](#design-decisions)  
 
 ## Getting Started
 
@@ -175,6 +188,29 @@ const SomeComponent = () => {
         </div>
     )
     // Stops observing and subscribes to any signals observed
+}
+```
+
+## useSignal()
+
+Create using `useSignal<T>(initialValue: T): Signal<T>`. Local component state which is useful to embrace signals for state management. Also improves debugging experience.
+
+```tsx
+import { observe, useSignal } from 'signalit'
+
+const SomeComponent = () => {
+    using _ = observe()
+
+    const count = useSignal(0)
+    
+    return (
+        <div>
+            <h4>The count is ${count.value}</h4>
+            <button onClick={() => {
+                count.value++
+            }}>Increase</Button>
+        </div>
+    )
 }
 ```
 
