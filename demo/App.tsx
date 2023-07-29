@@ -1,6 +1,7 @@
 import todos from "./todos";
 import { useSignal, observe } from "../src";
 import { Suspense, useEffect } from "react";
+import { ObserverContext } from "../src/ObserverContext";
 
 const PromiseComponent = () => {
   using _ = observe()
@@ -30,9 +31,13 @@ export const App = () => {
     }
   };
 
-  useEffect(() => todos.onFilteredTodosChange(console.log), [])
+  useEffect(() => todos.onFilteredTodosChange((value, prevValue) => {
+    console.log("Filtered todos changed", value, prevValue)
+  }), [])
 
-  useEffect(() => todos.onPromiseChanged(console.warn), [])
+  useEffect(() => todos.onPromiseChanged((value, prevValue) => {
+    console.warn("Promise changed", value, prevValue)
+  }), [])
 
   return (
     <div className="App">

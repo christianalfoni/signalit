@@ -26,6 +26,8 @@ Simple and performant reactive primitive for React
     - [AsyncSignal](#asyncsignal)
     - [AsyncSignal.value](#asyncsignal.value)
     - [AsyncSignal.value.use](#asyncsignal.value.use)
+    - [AsyncSignal.onChange](#asyncsignal.value.use)
+    - [compute](#compute)
     - [observe](#observe)
     - [useSignal](#usesignal)
 - [Design Decisions](#design-decisions)  
@@ -167,6 +169,31 @@ const SomeComponent = () => {
         </div>
     )
 }
+```
+
+### AsyncSignal.onChange
+
+Subscribe to changes on the signal with `AsyncSignal<T>.onChange(listener: (value: T, prevValue: T) => void): () => void`. This only triggers when the new value has actually been resolved, not when the promise is replaced.
+
+```ts
+import { asyncSignal } from 'signalit'
+
+const count = asyncSignal(Promise.resolve(0))
+
+const dispose = count.onChange((newCount, prevCount) => {
+  
+})
+```
+
+## compute()
+
+Created with `compute<T>(computeFn: () => T): Signal<T>`. Creates a signal that lazily recomputes whenever any accessed signals within the compute callback changes.
+
+```ts
+import { compute, signal } from 'signalit'
+
+const count = signal(0)
+const shoutingCount = compute(() => count.value + '!!!')
 ```
 
 ## observe()

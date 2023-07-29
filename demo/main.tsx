@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
 
-Symbol.dispose ??= Symbol("Symbol.dispose");
+// To avoid showing library in debugger
+// @ts-ignore
+window.IS_SIGNALIT_DEMO = true;
 
 const AppWrapper = () => {
   const [show, setShow] = useState(true);

@@ -4,8 +4,10 @@ import type { Signal } from "./Signal";
 Symbol.dispose ??= Symbol("Symbol.dispose");
 
 export class ObserverContext {
-  static current?: ObserverContext;
-  static prev?: ObserverContext;
+  static stack: ObserverContext[] = [];
+  static get current() {
+    return ObserverContext.stack[ObserverContext.stack.length - 1];
+  }
   private _signals = new Set<Signal>();
   private _onUpdate?: () => void;
   private _snapshot: { signals: unknown[] } = {
@@ -15,8 +17,7 @@ export class ObserverContext {
     return this._snapshot;
   }
   constructor() {
-    ObserverContext.prev = ObserverContext.current;
-    ObserverContext.current = this;
+    ObserverContext.stack.push(this);
   }
   registerSignal(signal: Signal) {
     this._signals.add(signal);
@@ -45,6 +46,6 @@ export class ObserverContext {
     this._onUpdate?.();
   }
   [Symbol.dispose]() {
-    ObserverContext.current = ObserverContext.prev;
+    ObserverContext.stack.pop();
   }
 }
