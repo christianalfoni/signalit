@@ -182,3 +182,13 @@ export function observe() {
 
   return context;
 }
+
+export function useSignal<T>(initialValue: T) {
+  const signalRef = useRef<Signal<T>>();
+
+  if (!signalRef.current) {
+    signalRef.current = signal(initialValue);
+  }
+
+  return signalRef.current;
+}

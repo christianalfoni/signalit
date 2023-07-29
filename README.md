@@ -15,6 +15,14 @@ Simple and performant reactive primitive for React
 - [Getting Started](#getting-started)
 - [Example](#example)
 - [API](#api)
+    - [Signal](#signal)
+    - [Signal.value](#signal.value)
+    - [Signal.onChange](#signal.onChange)
+    - [AsyncSignal](#asyncsignal)
+    - [AsyncSignal.value](#asyncsignal.value)
+    - [AsyncSignal.value.use](#asyncsignal.value.use)
+    - [observer](#observe)
+    - [useSignal](#usesignal)
 - [Design Decisions](#design-decisions)
 
 ## Getting Started
@@ -175,6 +183,29 @@ const SomeComponent = () => {
         </div>
     )
     // Stops observing and subscribes to any signals observed
+}
+```
+
+## useSignal()
+
+Create using `useSignal<T>(initialValue: T): Signal<T>`. Local component state which is useful to embrace signals for state management. Also improves debugging experience.
+
+```tsx
+import { observe, useSignal } from 'signalit'
+
+const SomeComponent = () => {
+    using _ = observe()
+
+    const count = useSignal(0)
+    
+    return (
+        <div>
+            <h4>The count is ${count.value}</h4>
+            <button onClick={() => {
+                count.value++
+            }}>Increase</Button>
+        </div>
+    )
 }
 ```
 
