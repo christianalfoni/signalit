@@ -1,19 +1,26 @@
 # 📻 SignalIt
 Simple and performant reactive primitive for React
 
+<img align="center" src="https://github.com/christianalfoni/signalit/assets/3956929/11ee4851-4ebf-474f-a2d3-3b65ebf856a1" width="25" /> [Open library on CodeSandbox](https://codesandbox.io/p/github/christianalfoni/signalit/main)
+
+<img align="center" src="https://github.com/christianalfoni/signalit/assets/3956929/11ee4851-4ebf-474f-a2d3-3b65ebf856a1" width="25" /> [Open demo on CodeSandbox](https://yyxczv-5173.csb.app/) (Open Chrome Devtools to see debugging DX)
+
 **NOTE!** This tool is not ready for production as Prettier, Linters etc. needs to support the incoming `using` keyword for JavaScript/TypeScript. This should be available by end of August 2023
 
-- 🗄️ Allows you to define observable state outside the component tree
-- 🚀 Increases performance as components only reconciles based on what it observes
-- 🔐 Does not use proxies to achieve reactiveness through mutation. It rather relies on simple getter/setter and treats its value as immutable, just like React expects
-- 🐛 Uses [explicit resource management](https://github.com/tc39/proposal-explicit-resource-management) to observe signals in components, which eliminates overhead to the component tree and improves the debugging experience
-- 🕐 Async signals with suspense
-- :accessibility: Allows debugging and exploring signals at runtime with source mapped references to the code observing and changing signals. This allows you and fellow developers understand what CODE drives your state changes, not just abstract action names
+🗄️ Allows you to define observable state outside the component tree
 
-<img align="center" src="https://github.com/christianalfoni/signalit/assets/3956929/11ee4851-4ebf-474f-a2d3-3b65ebf856a1" width="25" /> **[Open library on CodeSandbox](https://codesandbox.io/p/github/christianalfoni/signalit/main)**
+🚀 Increases performance as components only reconciles based on what it observes
 
-<img align="center" src="https://github.com/christianalfoni/signalit/assets/3956929/11ee4851-4ebf-474f-a2d3-3b65ebf856a1" width="25" /> **[Open demo on CodeSandbox](https://yyxczv-5173.csb.app/)** (Open Chrome Devtools to see debugging DX)
+🔐 Does not use proxies to achieve reactiveness through mutation. It rather relies on simple getter/setter and treats its value as immutable, just like React expects
 
+🐛 Uses [explicit resource management](https://github.com/tc39/proposal-explicit-resource-management) to observe signals in components, which eliminates overhead to the component tree and improves the debugging experience
+
+🕐 Async signals with suspense
+
+💻 Lazily compute signals
+
+:accessibility: Allows debugging and exploring signals at runtime with source mapped references to the code observing and changing signals. This allows you and fellow developers understand what CODE drives your state changes, not just abstract action names
+<img align="center" width="541" alt="Screenshot 2023-07-29 at 16 52 01" src="https://github.com/christianalfoni/signalit/assets/3956929/2e198ec0-fd57-49b3-a634-dc05dd5affd3">
 
 **Table Of Contents**
 
@@ -21,11 +28,13 @@ Simple and performant reactive primitive for React
 - [Example](#example)
 - [API](#api)
     - [Signal](#signal)
-    - [Signal.value](#signal.value)
-    - [Signal.onChange](#signal.onChange)
+    - [Signal.value](#signalvalue)
+    - [Signal.onChange](#signalonchange)
     - [AsyncSignal](#asyncsignal)
-    - [AsyncSignal.value](#asyncsignal.value)
-    - [AsyncSignal.value.use](#asyncsignal.value.use)
+    - [AsyncSignal.value](#asyncsignalvalue)
+    - [AsyncSignal.value.use](#asyncsignalvalueuse)
+    - [AsyncSignal.onChange](#asyncsignalonchange)
+    - [compute](#compute)
     - [observe](#observe)
     - [useSignal](#usesignal)
 - [Design Decisions](#design-decisions)  
@@ -35,7 +44,6 @@ Simple and performant reactive primitive for React
 ```bash
 npm install signalit
 ```
-
 
 <img align="center" src="https://github.com/christianalfoni/signalit/assets/3956929/5c4a8b43-27a2-4553-a710-146d94fbc612" width="25"/> **TypeScript 5.2** (Currently in Beta)
 
@@ -167,6 +175,31 @@ const SomeComponent = () => {
         </div>
     )
 }
+```
+
+### AsyncSignal.onChange
+
+Subscribe to changes on the signal with `AsyncSignal<T>.onChange(listener: (value: T, prevValue: T) => void): () => void`. This only triggers when the new value has actually been resolved, not when the promise is replaced.
+
+```ts
+import { asyncSignal } from 'signalit'
+
+const count = asyncSignal(Promise.resolve(0))
+
+const dispose = count.onChange((newCount, prevCount) => {
+  
+})
+```
+
+## compute()
+
+Created with `compute<T>(computeFn: () => T): Signal<T>`. Creates a signal that lazily recomputes whenever any accessed signals within the compute callback changes.
+
+```ts
+import { compute, signal } from 'signalit'
+
+const count = signal(0)
+const shoutingCount = compute(() => count.value + '!!!')
 ```
 
 ## observe()

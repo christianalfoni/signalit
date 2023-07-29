@@ -35,15 +35,17 @@ const queue = new SerialQueue();
 
 function createStackFrameData(stack: string) {
   if (window.navigator.userAgent.includes("Chrome")) {
+    const isDemo = "IS_SIGNALIT_DEMO" in window && window.IS_SIGNALIT_DEMO;
+
     const callSites = stack
       .split("\n")
-      .slice(1)
+      .slice(isDemo ? 3 : 1)
       .filter(
         (line) =>
           !line.includes("node_modules") &&
-          !line.includes("src/lib") &&
           line.includes(window.location.origin)
       );
+
     const stackFrameData: Array<{
       file: string;
       line: number;
@@ -184,7 +186,7 @@ export function createSetterDebugEntry(
               console.groupCollapsed(
                 `%c# ${
                   isComputed ? "COMPUTE" : "SET"
-                } SIGNAL - ${functionName}:`,
+                } SIGNAL at ${functionName}:`,
                 isComputed
                   ? "background-color: rgb(209 250 229);color: rgb(6 78 59);padding:0 4px 0 4px;"
                   : "background-color: rgb(224 242 254);color: rgb(22 78 99);padding:0 4px 0 4px;",

@@ -121,7 +121,7 @@ export function compute<T>(cb: () => T) {
   let listeners: Set<(newValue: T, prevValue: T) => void> | undefined;
 
   return {
-    onChange: (listener: (newValue: T) => void) => {
+    onChange: (listener: (newValue: T, prevValue: T) => void) => {
       listeners = listeners || new Set();
 
       listeners.add(listener);
@@ -144,6 +144,8 @@ export function compute<T>(cb: () => T) {
         const context = new ObserverContext();
 
         value = cb();
+
+        context[Symbol.dispose]();
 
         disposer = context.subscribe(() => {
           isDirty = true;
