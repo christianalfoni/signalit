@@ -39,11 +39,12 @@ function createStackFrameData(stack: string) {
 
     const callSites = stack
       .split("\n")
-      .slice(isDemo ? 3 : 1)
+      .slice(1)
       .filter(
         (line) =>
           !line.includes("node_modules") &&
-          line.includes(window.location.origin)
+          line.includes(window.location.origin) &&
+          (isDemo ? !line.includes("/src") : true)
       );
 
     const stackFrameData: Array<{
