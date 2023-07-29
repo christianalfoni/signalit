@@ -1,6 +1,6 @@
 import todos from "./todos";
-import { useSignal, observe } from "../src";
-import { Suspense, useEffect } from "react";
+import { observe } from "../src";
+import { Suspense, useEffect, useState } from "react";
 
 const PromiseComponent = () => {
   using _ = observe()
@@ -15,18 +15,16 @@ const PromiseComponent = () => {
 }
 
 export const App = () => {
-  using _ = observe()
-  
-  const newTodoTitle = useSignal("");
+  const [newTodoTitle, setNewTodoTitle] = useState('')
 
   const onTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    newTodoTitle.value = event.target.value;
+    setNewTodoTitle(event.target.value)
   };
 
   const onTitleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-      todos.addTodo(newTodoTitle.value);
-      newTodoTitle.value = "";
+      todos.addTodo(newTodoTitle);
+      setNewTodoTitle("")
     }
   };
 
@@ -42,7 +40,7 @@ export const App = () => {
         }}
       >
         <input
-          value={newTodoTitle.value}
+          value={newTodoTitle}
           onChange={onTitleChange}
           onKeyDown={onTitleKeyDown}
         />
