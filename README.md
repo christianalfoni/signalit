@@ -5,9 +5,9 @@ Simple and performant reactive primitive for React
 
 <img align="center" src="https://github.com/christianalfoni/signalit/assets/3956929/11ee4851-4ebf-474f-a2d3-3b65ebf856a1" width="25" /> [Open demo on CodeSandbox](https://yyxczv-5173.csb.app/) (Open Chrome Devtools to see debugging DX)
 
-**NOTE!** This tool is not ready for production as Prettier, Linters etc. needs to support the incoming `using` keyword for JavaScript/TypeScript. This should be available by end of August 2023
+> ⚠️ This tool is not ready for production as Prettier, Linters etc. needs to support the incoming `using` keyword for > JavaScript/TypeScript. This should be available by end of August 2023
 
-🗄️ Allows you to define observable state outside the component tree
+🗄️ Allows you to organise observable state and related logic outside the component tree
 
 🚀 Increases performance as components only reconciles based on what it observes
 
