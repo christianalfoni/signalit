@@ -20,7 +20,10 @@ Simple and performant reactive primitive for React
 💻 Lazily compute signals
 
 :accessibility: Allows debugging and exploring signals at runtime with source mapped references to the code observing and changing signals. This allows you and fellow developers understand what CODE drives your state changes, not just abstract action names
+
 <img align="center" width="541" alt="Screenshot 2023-07-29 at 16 52 01" src="https://github.com/christianalfoni/signalit/assets/3956929/2e198ec0-fd57-49b3-a634-dc05dd5affd3">
+
+<hr />
 
 **Table Of Contents**
 
