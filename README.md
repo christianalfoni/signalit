@@ -136,9 +136,9 @@ data.value
 Access and change the value of the promise.
 
 ```ts
-import { signal } from 'signalit'
+import { asyncSignal } from 'signalit'
 
-const data = signal(fetchSomeData())
+const data = asyncSignal(fetchSomeData())
 
 // Immediately changes the promise, but will only notify observers when promise is resolved/rejected
 data.value = fetchSomeOtherData()
@@ -155,9 +155,9 @@ A hook which allows synchronous access to resolved values, throw to suspense whe
 **Note!** This hook is likely to become a native hook in React in the near future.
 
 ```tsx
-import { signal, observe } from 'signalit'
+import { asyncSignal, observe } from 'signalit'
 
-const dataPromise = signal(fetchSomeData())
+const dataPromise = asyncSignal(fetchSomeData())
 
 const SomeComponent = () => {
     using _ = observe()
