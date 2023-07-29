@@ -10,6 +10,11 @@ Simple and performant reactive primitive for React
 - 🕐 Async signals with suspense
 - :accessibility: Allows debugging and exploring signals at runtime with source mapped references to the code observing and changing signals. This allows you and fellow developers understand what CODE drives your state changes, not just abstract action names
 
+<img align="center" src="https://github.com/christianalfoni/signalit/assets/3956929/11ee4851-4ebf-474f-a2d3-3b65ebf856a1" width="25" /> **[Open library on CodeSandbox](https://codesandbox.io/p/github/christianalfoni/signalit/main)**
+
+<img align="center" src="https://github.com/christianalfoni/signalit/assets/3956929/11ee4851-4ebf-474f-a2d3-3b65ebf856a1" width="25" /> **[Open demo on CodeSandbox](https://yyxczv-5173.csb.app/)** (Open Chrome Devtools to see debugging DX)
+
+
 **Table Of Contents**
 
 - [Getting Started](#getting-started)
@@ -21,9 +26,9 @@ Simple and performant reactive primitive for React
     - [AsyncSignal](#asyncsignal)
     - [AsyncSignal.value](#asyncsignal.value)
     - [AsyncSignal.value.use](#asyncsignal.value.use)
-    - [observer](#observe)
+    - [observe](#observe)
     - [useSignal](#usesignal)
-- [Design Decisions](#design-decisions)
+- [Design Decisions](#design-decisions)  
 
 ## Getting Started
 
