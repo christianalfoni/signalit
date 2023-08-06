@@ -1,0 +1,13 @@
+{
+    "extends": "./tsconfig.build.json",
+    "compilerOptions": {
+      "module": "esnext",
+      "target": "es2015",
+      "lib": ["dom", "esnext.disposable"],
+      "declaration": true,
+      "outDir": "./dist/esm",
+      "esModuleInterop": true
+    },
+    "include": ["src/**/*"]
+  }
+  

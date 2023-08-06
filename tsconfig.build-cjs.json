@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2015",
+    "lib": ["dom", "esnext.disposable"],
+    "declaration": true,
+    "outDir": "./dist/cjs",
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*"]
+}
